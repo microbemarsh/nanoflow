@@ -5,6 +5,10 @@
 */
 
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
+include { CHOPPER                } from '../modules/nf-core/chopper/main'
+include { NANOPLOT               } from '../modules/nf-core/nanoplot/main'
+include { PIGZ_COMPRESS          } from '../modules/nf-core/pigz/compress/main'
+include { EMU_ABUNDANCE          } from '../modules/local/emu/emu_abundance.nf'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -17,6 +21,8 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_nano
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+// changed
+
 workflow NANOFLOW {
 
     take:
@@ -28,13 +34,31 @@ workflow NANOFLOW {
     ch_multiqc_files = Channel.empty()
 
     //
-    // MODULE: Run FastQC
+    // MODULE: Run chopper
     //
-    FASTQC (
+    CHOPPER (
         ch_samplesheet
     )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    ch_multiqc_files = ch_multiqc_files.mix(CHOPPER.out.zip.collect{it[1]})
+    ch_versions = ch_versions.mix(CHOPPER.out.versions.first())
+
+    //
+    // MODULE: Run nanoplot
+    //
+    NANOPLOT (
+        ch_samplesheet
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(CHOPPER.out.zip.collect{it[1]})
+    ch_versions = ch_versions.mix(CHOPPER.out.versions.first())
+
+    //
+    // MODULE: Run emu abundance
+    //
+    EMU_ABUNDANCE (
+        ch_samplesheet
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(CHOPPER.out.zip.collect{it[1]})
+    ch_versions = ch_versions.mix(CHOPPER.out.versions.first())
 
     //
     // Collate and save software versions
