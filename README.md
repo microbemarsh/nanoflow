@@ -5,9 +5,6 @@
   </picture>
 </h1>
 
-[![GitHub Actions CI Status](https://github.com/nf-core/nanoflow/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/nanoflow/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/nanoflow/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/nanoflow/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/nanoflow/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
-
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
@@ -18,40 +15,34 @@
 
 ## Introduction
 
-**nf-core/nanoflow** is a bioinformatics pipeline that ...
+**nf-core/nanoflow** is a bioinformatics pipeline for the analysis of long-read amplicon sequencing
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+nf-core nanoflow is built for ONT Nanopore sequencing analysis post-basecalling. nanoflow requires a samplesheet of your files with which sample they correspond to. This pipeline will output a phyloseq object that can be downloaded in the form of an .rds file and users will also be able to download figures from the interactive visualization tool.
 
 <!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
      workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+1. Read QC ([`chopper`](https://github.com/wdecoster/chopper))
+2. Read stats ([`NanoPlot`](https://github.com/wdecoster/NanoPlot))
+3. Classify sequences ([`emu`](https://gitlab.com/treangenlab/emu))
+4. Format output into a ([`phyloseq`](https://github.com/joey711/phyloseq)) object
+5. Create an interactive output visualization with ([`shiny-phyloseq`](https://github.com/joey711/shiny-phyloseq))
+6. QC the pipeline with ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,fastq
+CONTROL_REP1,AEG588A1_S1_long_reads.fastq.gz
 ```
-
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
 -->
 
 Now, you can run the pipeline using:
@@ -62,6 +53,7 @@ Now, you can run the pipeline using:
 nextflow run nf-core/nanoflow \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
+   --db emu,rdp,silva \
    --outdir <OUTDIR>
 ```
 
